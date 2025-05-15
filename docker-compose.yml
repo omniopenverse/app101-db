@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: usersdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  liquibase:
+    image: liquibase/liquibase
+    volumes:
+      - ./liquibase:/liquibase/changelog
+    command: update --url=jdbc:postgresql://db:5432/usersdb --username=user --password=password --changeLogFile=dbchangelog.xml
+
+volumes:
+  postgres_data:
