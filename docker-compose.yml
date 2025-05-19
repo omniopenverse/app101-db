@@ -1,21 +1,41 @@
-version: '3.8'
-
 services:
-
-  db:
-    image: postgres:15
+  app101postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app101postgres
     environment:
-      POSTGRES_USER: user
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: usersdb
+      POSTGRES_DB: postgresdb
+    hostname: app101postgres
+    image: app101/postgres:latest
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready --dbname postgres --username app101postgres
+      timeout: 10s
+      interval: 30s
+      retries: 5
+    networks:
+      app101_database_network: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: 5432
+        protocol: tcp
+    restart: unless-stopped
+    shm_size: "134217728"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - type: volume
+        source: app101_postgres_data
+        target: /var/lib/postgresql/data
+        volume: {}
 
-  liquibase:
-    image: liquibase/liquibase
-    volumes:
-      - ./liquibase:/liquibase/changelog
-    command: update --url=jdbc:postgresql://db:5432/usersdb --username=user --password=password --changeLogFile=dbchangelog.xml
+networks:
+  app101_database_network:
+    name: app101_database_network
 
 volumes:
-  postgres_data:
+  app101_postgres_data:
