@@ -8,7 +8,11 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE DATABASE app101db WITH ENCODING=‘UTF8’ OWNER=app101;
 	GRANT ALL PRIVILEGES ON DATABASE app101db TO app101;
 
-    CREATE TABLE app101db.public.users (
+EOSQL
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname app101db <<-EOSQL
+
+    CREATE TABLE public.users (
         id SERIAL PRIMARY KEY,
         username VARCHAR(50) NOT NULL,
         email VARCHAR(100)
