@@ -1,21 +1,57 @@
-version: '3.8'
-
 services:
-
-  db:
-    image: postgres:15
+  app101postgres:
+    container_name: app101postgres
     environment:
-      POSTGRES_USER: user
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: app101postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: usersdb
+      POSTGRES_DB: app101db
+    hostname: app101postgres
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready --dbname postgres --username app101postgres
+      timeout: 10s
+      interval: 30s
+      retries: 5
+    image: postgres:15.10
+    networks:
+      app101_database_network: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: 5432
+        protocol: tcp
+    restart: unless-stopped
+    shm_size: "134217728"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - type: volume
+        source: app101_postgres_data
+        target: /var/lib/postgresql/data
+        volume: {}
 
-  liquibase:
-    image: liquibase/liquibase
-    volumes:
-      - ./liquibase:/liquibase/changelog
-    command: update --url=jdbc:postgresql://db:5432/usersdb --username=user --password=password --changeLogFile=dbchangelog.xml
+  app101liquibase:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app101liquibase
+    depends_on:
+      app101postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://app101postgres:5432/app101db
+      DB_USERNAME: app101postgres
+      DB_PASSWORD: password
+      DB_CHANGELOG_FILE_PATH: liquibase/changelog/dbchangelog.xml
+      DB_DRIVER: org.postgresql.Driver
+    image: app101/liquibase:latest
+    hostname: app101liquibase
+    networks:
+      app101_database_network: null
+
+networks:
+  app101_database_network:
+    name: app101_database_network
 
 volumes:
-  postgres_data:
+  app101_postgres_data:
