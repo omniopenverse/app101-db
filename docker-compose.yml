@@ -1,0 +1,42 @@
+services:
+  app101postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app101postgres
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgresdb
+    hostname: app101postgres
+    image: app101/postgres:latest
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready --dbname postgres --username app101postgres
+      timeout: 10s
+      interval: 30s
+      retries: 5
+    networks:
+      app101_shared_network: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: 5432
+        protocol: tcp
+    restart: unless-stopped
+    shm_size: "134217728"
+    volumes:
+      - type: volume
+        source: app101_postgres_data
+        target: /var/lib/postgresql/data
+        volume: {}
+
+networks:
+  app101_shared_network:
+    name: app101_shared_network
+    external: false
+      
+volumes:
+  app101_postgres_data:
