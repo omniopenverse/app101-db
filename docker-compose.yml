@@ -19,7 +19,7 @@ services:
       interval: 30s
       retries: 5
     networks:
-      app101_database_network: null
+      app101_shared_network: null
     ports:
       - mode: ingress
         target: 5432
@@ -34,8 +34,9 @@ services:
         volume: {}
 
 networks:
-  app101_database_network:
-    name: app101_database_network
-
+  app101_shared_network:
+    name: app101_shared_network
+    external: false
+      
 volumes:
   app101_postgres_data:

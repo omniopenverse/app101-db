@@ -10,11 +10,12 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 EOSQL
 
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname app101db <<-EOSQL
+psql -v ON_ERROR_STOP=1 --username app101 --dbname app101db <<-EOSQL
 
     CREATE TABLE public.users (
         id SERIAL PRIMARY KEY,
-        username VARCHAR(50) NOT NULL,
+        name VARCHAR(50) NOT NULL,
+        age INT NOT NULL,
         email VARCHAR(100)
     );
 
