@@ -18,8 +18,6 @@ services:
       timeout: 10s
       interval: 30s
       retries: 5
-    networks:
-      app101_shared_network: null
     ports:
       - mode: ingress
         target: 5432
@@ -33,10 +31,6 @@ services:
         target: /var/lib/postgresql/data
         volume: {}
 
-networks:
-  app101_shared_network:
-    name: app101_shared_network
-    external: false
       
 volumes:
   app101_postgres_data:
